@@ -1,0 +1,161 @@
+/* ============================================
+   Estilos da Página de Listagem
+   ============================================ */
+
+.list-header {
+    background: #161b22;
+    border: 1px solid #30363d;
+    padding: 16px 24px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list-header h1 {
+    color: #f0f6fc;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.list-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.list-header-actions span {
+    color: #8b949e;
+    font-size: 12px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 16px;
+}
+
+.list-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    padding: 24px;
+    border-radius: 6px;
+}
+
+.list-card h2 {
+    color: #f0f6fc;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #30363d;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.list-card.pendentes h2 {
+    border-bottom-color: #d29922;
+}
+
+.list-card.criados h2 {
+    border-bottom-color: #238636;
+}
+
+.count {
+    display: inline-block;
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 8px;
+}
+
+.lista {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.lista::-webkit-scrollbar {
+    width: 8px;
+}
+
+.lista::-webkit-scrollbar-track {
+    background: #0d1117;
+}
+
+.lista::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 4px;
+}
+
+.lista::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
+}
+
+.item {
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 6px;
+    border-left: 3px solid #58a6ff;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.item:hover {
+    background: #161b22;
+    border-color: #30363d;
+}
+
+.item.pendente {
+    border-left-color: #d29922;
+}
+
+.item.criado {
+    border-left-color: #238636;
+}
+
+.item-header {
+    font-weight: 600;
+    color: #f0f6fc;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.item-detail {
+    font-size: 12px;
+    color: #8b949e;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+.vazio {
+    text-align: center;
+    padding: 48px;
+    color: #6e7681;
+    font-style: italic;
+    font-size: 14px;
+}
+
+.senha {
+    background: rgba(56, 139, 253, 0.1);
+    border: 1px solid rgba(56, 139, 253, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    color: #79c0ff;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+.info-box {
+    background: rgba(56, 139, 253, 0.1);
+    border: 1px solid rgba(56, 139, 253, 0.2);
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: #79c0ff;
+}
+

@@ -1,0 +1,121 @@
+/* ============================================
+   Sistema de Gerenciamento de Usuários
+   Estilos Base - GitHub Dark Mode
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+    background: #0d1117;
+    color: #c9d1d9;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Cards */
+.card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    padding: 24px;
+    border-radius: 6px;
+}
+
+h1 {
+    color: #f0f6fc;
+    margin-bottom: 24px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+h2 {
+    color: #f0f6fc;
+    margin-bottom: 16px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Mensagens */
+.mensagem {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    border: 1px solid;
+    font-size: 14px;
+}
+
+.mensagem.sucesso {
+    background: rgba(35, 134, 54, 0.1);
+    color: #3fb950;
+    border-color: rgba(35, 134, 54, 0.3);
+}
+
+.mensagem.erro {
+    background: rgba(218, 54, 51, 0.1);
+    color: #f85149;
+    border-color: rgba(218, 54, 51, 0.3);
+}
+
+/* Botões */
+.btn {
+    padding: 8px 16px;
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn:hover {
+    background: #30363d;
+    border-color: #484f58;
+}
+
+button {
+    padding: 8px 16px;
+    border: 1px solid;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+button[type="submit"] {
+    background: #238636;
+    border-color: #2ea043;
+    color: #ffffff;
+}
+
+button[type="submit"]:hover {
+    background: #2ea043;
+    border-color: #3fb950;
+}
+
+/* Links */
+a {
+    color: #58a6ff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+

@@ -1,0 +1,37 @@
+/* ============================================
+   Estilos da Página de Login
+   ============================================ */
+
+body.login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-container {
+    max-width: 400px;
+    width: 100%;
+}
+
+.login-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    padding: 32px;
+    border-radius: 6px;
+}
+
+.login-card h1 {
+    color: #f0f6fc;
+    margin-bottom: 24px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 12px;
+    color: #8b949e;
+}
+

@@ -1,0 +1,15 @@
+# Redirecionar acesso ao diretório para login se não autenticado
+# Proteger todos os arquivos PHP exceto login.php e logout.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Se acessar o diretório sem arquivo específico, redirecionar para login
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^$ login.php [L,R=302]
+</IfModule>
+
+# Desabilitar listagem de diretório
+Options -Indexes
+

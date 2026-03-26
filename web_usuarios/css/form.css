@@ -1,0 +1,79 @@
+/* ============================================
+   Estilos de Formulários
+   ============================================ */
+
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    color: #f0f6fc;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+input[type="text"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 8px 12px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #c9d1d9;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+select:focus {
+    outline: none;
+    border-color: #58a6ff;
+    background: #161b22;
+}
+
+input[type="text"]::placeholder,
+input[type="password"]::placeholder {
+    color: #6e7681;
+}
+
+.info {
+    background: rgba(56, 139, 253, 0.1);
+    border: 1px solid rgba(56, 139, 253, 0.2);
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #79c0ff;
+}
+
+.btn-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+}
+
+.btn-group button,
+.btn-group .btn {
+    flex: 1;
+}
+
+.btn-group .btn.logout {
+    flex: 0.5;
+    background: rgba(218, 54, 51, 0.1);
+    border-color: rgba(218, 54, 51, 0.3);
+    color: #f85149;
+}
+
+.btn-group .btn.logout:hover {
+    background: rgba(218, 54, 51, 0.2);
+}
+
