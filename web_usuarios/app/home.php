@@ -39,6 +39,14 @@ $web_dir = __DIR__;
                     <p>Ver pendentes e criados</p>
                 </a>
             </div>
+            
+            <div class="menu-card groups">
+                <a href="gerenciar_setores.php">
+                    <div class="card-icon">📂</div>
+                    <h2>Gerenciar Setores</h2>
+                    <p>Adicionar e remover grupos/setores</p>
+                </a>
+            </div>
         </div>
     </div>
 </body>

@@ -124,7 +124,7 @@ O sistema oferece:
 │   ├── usuarios_criados.txt     # Histórico de usuários criados (+ senhas)
 │   ├── usuarios_sistema.txt     # Credenciais do painel admin
 │   ├── usuarios_sistema.example.txt  # Exemplo do arquivo de credenciais
-│   ├── setores.conf             # Lista de setores/departamentos
+│   ├── setores.conf             # Lista de setores/departamentos (gerenciável via web)
 │   └── PERMISSOES.md            # Instruções de permissões
 │
 └── web_usuarios/                # 🌐 Interface web
@@ -136,6 +136,7 @@ O sistema oferece:
         ├── auth.php             # Proteção de autenticação
         ├── home.php             # Menu principal
         ├── adicionar_usuario.php # Formulário de cadastro
+        ├── gerenciar_setores.php # Gerenciamento de setores/grupos
         └── listar_usuarios.php  # Listagem de pendentes e criados
 ```
 
@@ -192,9 +193,9 @@ sudo chown www-data:www-data /var/www/html/usuarios/usuarios_criados.txt
 sudo chmod 664 /var/www/html/usuarios/usuarios_pendentes.txt
 sudo chmod 664 /var/www/html/usuarios/usuarios_criados.txt
 
-# Setores (apenas leitura)
+# Setores (leitura e escrita - gerenciado via interface web)
 sudo chown root:www-data /var/www/html/usuarios/setores.conf
-sudo chmod 644 /var/www/html/usuarios/setores.conf
+sudo chmod 664 /var/www/html/usuarios/setores.conf
 
 # Script (executável como root)
 sudo chown root:root /var/www/html/usuarios/cria_usuarios.sh
@@ -207,8 +208,19 @@ sudo chmod 644 /var/www/html/web_usuarios/*.php
 
 ### 4. Configurar setores
 
-Edite o arquivo `usuarios/setores.conf` e adicione um setor por linha:
+Os setores podem ser gerenciados de duas formas:
 
+**Via interface web (recomendado):**
+Após o login, acesse **"Gerenciar Setores"** no menu principal.
+
+**Via terminal (alternativa):**
+Edite manualmente o arquivo `usuarios/setores.conf`:
+
+```bash
+sudo nano /var/www/html/usuarios/setores.conf
+```
+
+Adicione um setor por linha:
 ```
 vendas
 ti
@@ -244,6 +256,15 @@ Abra no navegador: `http://SEU_SERVIDOR/web_usuarios/`
 #### 📋 Listar Usuários
 - **⏳ Pendentes**: Usuários aguardando processamento
 - **✅ Criados**: Usuários já criados no sistema (com senhas exibidas)
+
+#### 📂 Gerenciar Setores
+1. No menu principal, clique em **"Gerenciar Setores"**
+2. Veja a **lista de setores** existentes com contagem
+3. **Adicione** novos setores no formulário ao lado
+4. **Remova** setores clicando em "Remover" (com confirmação)
+5. Os novos setores aparecem automaticamente no dropdown ao adicionar usuários
+
+> **💡 Dica:** Os setores viram grupos no Linux/Samba. O script `cria_usuarios.sh` cria automaticamente o grupo do setor e adiciona o usuário a ele.
 
 ### ⚡ Script Bash (`cria_usuarios.sh`)
 
@@ -297,7 +318,7 @@ tail -f /var/log/cria_usuarios.log
 | `usuarios_pendentes.txt` | Fila de pendentes | 1 login por linha | PHP (web) | Script bash |
 | `usuarios_criados.txt` | Histórico de criados | `login \| senha` | Script bash | PHP (web) |
 | `usuarios_sistema.txt` | Credenciais admin | `usuario \| senha_ou_hash` | Admin | PHP (web) |
-| `setores.conf` | Lista de setores | 1 setor por linha | Admin | PHP (web) |
+| `setores.conf` | Lista de setores | 1 setor por linha | PHP (web) via Gerenciar Setores | PHP (web) |
 | `PERMISSOES.md` | Docs de permissões | Markdown | — | — |
 
 ### `web_usuarios/`
@@ -310,6 +331,7 @@ tail -f /var/log/cria_usuarios.log
 | `app/auth.php` | Middleware de proteção | Sessão PHP |
 | `app/home.php` | Menu principal | `auth.php` |
 | `app/adicionar_usuario.php` | Cadastro de usuário | `auth.php`, `setores.conf`, `usuarios_pendentes.txt` |
+| `app/gerenciar_setores.php` | Gerenciar setores/grupos | `auth.php`, `setores.conf` |
 | `app/listar_usuarios.php` | Listagem | `auth.php`, `usuarios_pendentes.txt`, `usuarios_criados.txt` |
 
 ---

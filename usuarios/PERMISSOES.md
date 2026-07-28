@@ -30,7 +30,7 @@ Antes de configurar as permissões, certifique-se de que:
 |---------|-------------|-------|-----------|-------------|---------|
 | `usuarios/usuarios_pendentes.txt` | `www-data` | `www-data` | `664` | PHP (web) + Script (root) | PHP (web) + Script (root) |
 | `usuarios/usuarios_criados.txt` | `www-data` | `www-data` | `664` | Script (root) | PHP (web) |
-| `usuarios/setores.conf` | `root` | `www-data` | `644` | Admin (manual) | PHP (web) |
+| `usuarios/setores.conf` | `root` | `www-data` | `664` | PHP (web) via Gerenciar Setores | PHP (web) |
 | `usuarios/usuarios_sistema.txt` | `root` | `www-data` | `640` | Admin (manual) | PHP (web) |
 | `usuarios/cria_usuarios.sh` | `root` | `root` | `755` | Admin (manual) | Root (execução) |
 | `web_usuarios/*.php` | `www-data` | `www-data` | `644` | Admin (manual) | Apache (execução) |
@@ -72,12 +72,12 @@ sudo chown www-data:www-data /var/www/html/usuarios/usuarios_criados.txt
 sudo chmod 664 /var/www/html/usuarios/usuarios_criados.txt
 
 # ==========================================
-# Arquivos de configuração (somente leitura para web)
+# Arquivos de configuração
 # ==========================================
 
-# Setores
+# Setores (leitura e escrita - gerenciado via interface web)
 sudo chown root:www-data /var/www/html/usuarios/setores.conf
-sudo chmod 644 /var/www/html/usuarios/setores.conf
+sudo chmod 664 /var/www/html/usuarios/setores.conf
 
 # Credenciais do admin (mais restrito por segurança)
 sudo chown root:www-data /var/www/html/usuarios/usuarios_sistema.txt
