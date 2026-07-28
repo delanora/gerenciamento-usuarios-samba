@@ -9,15 +9,26 @@ $base_dir = dirname(dirname(__DIR__)) . '/usuarios';
 $pendentes_file = $base_dir . '/usuarios_pendentes.txt';
 $criados_file = $base_dir . '/usuarios_criados.txt';
 
-// Carregar usuários pendentes
+// Carregar usuários pendentes (formato: login | setor)
 $pendentes = [];
 if (file_exists($pendentes_file) && is_readable($pendentes_file)) {
-    $pendentes = @file($pendentes_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    if ($pendentes !== false && is_array($pendentes)) {
-        $pendentes = array_filter($pendentes, function($p) { return !empty(trim($p)); });
-        $pendentes = array_map('trim', $pendentes);
-    } else {
-        $pendentes = [];
+    $linhas = @file($pendentes_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($linhas !== false && is_array($linhas)) {
+        foreach ($linhas as $linha) {
+            $linha = trim($linha);
+            if (empty($linha)) continue;
+
+            $parts = explode(' | ', $linha);
+            $login = trim($parts[0]);
+            $setor = isset($parts[1]) ? trim($parts[1]) : '';
+
+            if (!empty($login)) {
+                $pendentes[] = [
+                    'login' => $login,
+                    'setor' => $setor
+                ];
+            }
+        }
     }
 }
 
@@ -41,7 +52,9 @@ if (file_exists($criados_file) && is_readable($criados_file)) {
 }
 
 // Ordenar
-sort($pendentes);
+usort($pendentes, function($a, $b) {
+    return strcmp($a['login'], $b['login']);
+});
 usort($criados, function($a, $b) {
     return strcmp($a['login'], $b['login']);
 });
@@ -83,10 +96,12 @@ usort($criados, function($a, $b) {
                         ⓘ Estes usuários aguardam processamento pelo script bash
                     </div>
                     <div class="lista">
-                        <?php foreach ($pendentes as $login): ?>
+                        <?php foreach ($pendentes as $usuario): ?>
                             <div class="item pendente">
-                                <div class="item-header"><?php echo htmlspecialchars($login); ?></div>
-                                <div class="item-detail">Aguardando criação</div>
+                                <div class="item-header"><?php echo htmlspecialchars($usuario['login']); ?></div>
+                                <div class="item-detail">
+                                    Setor: <span class="setor"><?php echo htmlspecialchars(ucfirst($usuario['setor'])); ?></span>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -124,4 +139,3 @@ usort($criados, function($a, $b) {
     </div>
 </body>
 </html>
-

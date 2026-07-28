@@ -55,6 +55,12 @@ input[type="password"]::placeholder {
     color: #79c0ff;
 }
 
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
 .btn-group {
     display: flex;
     gap: 8px;

@@ -247,14 +247,14 @@ Abra no navegador: `http://SEU_SERVIDOR/web_usuarios/`
 
 #### ➕ Adicionar Usuário
 1. No menu principal, clique em **"Adicionar Usuário"**
-2. Preencha o **nome** (apenas letras minúsculas, sem acentos)
+2. Preencha o **nome** e o **sobrenome** (apenas letras minúsculas, sem acentos)
 3. Selecione o **setor** no dropdown
-4. O login será gerado automaticamente: `nome.setor` (ex: `joao.vendas`)
+4. O login será gerado automaticamente: `nome.sobrenome` (ex: `joao.silva`)
 5. Clique em "Adicionar Usuário"
-6. O usuário entra na fila de pendentes
+6. O usuário entra na fila de pendentes no formato: `login | setor`
 
 #### 📋 Listar Usuários
-- **⏳ Pendentes**: Usuários aguardando processamento
+- **⏳ Pendentes**: Usuários aguardando processamento (com login e setor exibidos)
 - **✅ Criados**: Usuários já criados no sistema (com senhas exibidas)
 
 #### 📂 Gerenciar Setores
@@ -294,8 +294,8 @@ tail -f /var/log/cria_usuarios.log
 2. **Verifica** se o arquivo de pendentes existe
 3. **Cria** o grupo padrão `cliente` no Linux se não existir
 4. Para **cada usuário** na fila de pendentes:
-   - Extrai o setor do login (ex: `joao.vendas` → setor = `vendas`)
-   - Valida que o login tem setor (senão, mantém na fila com erro)
+   - Lê o login e o setor do formato `login | setor` (ex: `joao.silva | vendas`)
+   - Valida que o setor foi informado (senão, mantém na fila com erro)
    - Verifica se o usuário já existe no Linux
    - **Gera senha** no formato: `{2 primeiras letras}@{4 caracteres aleatórios}` (ex: `jo@a8f3`)
    - **Cria** o usuário no Linux (`useradd -s /bin/false`)
@@ -315,7 +315,7 @@ tail -f /var/log/cria_usuarios.log
 | Arquivo | Função | Formato | Quem escreve | Quem lê |
 |---------|--------|---------|--------------|---------|
 | `cria_usuarios.sh` | Script de criação | Bash script | Admin | Root (execução) |
-| `usuarios_pendentes.txt` | Fila de pendentes | 1 login por linha | PHP (web) | Script bash |
+| `usuarios_pendentes.txt` | Fila de pendentes | `login \| setor` | PHP (web) | Script bash |
 | `usuarios_criados.txt` | Histórico de criados | `login \| senha` | Script bash | PHP (web) |
 | `usuarios_sistema.txt` | Credenciais admin | `usuario \| senha_ou_hash` | Admin | PHP (web) |
 | `setores.conf` | Lista de setores | 1 setor por linha | PHP (web) via Gerenciar Setores | PHP (web) |

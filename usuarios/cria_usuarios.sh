@@ -1,6 +1,8 @@
 #!/bin/bash
 # Finalidade:   Criar usuarios para o SAMBA
 #-------------------------------------------------------------------------------------------
+# Formato do arquivo de pendentes: login | setor
+# Exemplo: joao.silva | vendas
 
 mydir='/var/www/html/usuarios'
 cd $mydir
@@ -42,20 +44,26 @@ fi
 # Criar arquivo temporário para armazenar pendentes restantes
 temp_pendentes=$(mktemp)
 
-while IFS= read -r usuario || [ -n "$usuario" ]; do
+while IFS=' | ' read -r usuario setor || [ -n "$usuario" ]; do
         # Ignorar linhas vazias
         [ -z "$usuario" ] && continue
         
         # Remover espaços em branco
         usuario=$(echo "$usuario" | tr -d '[:space:]')
+        setor=$(echo "$setor" | tr -d '[:space:]')
         
-        # Extrair setor do login (tudo após o ponto)
-        setor=$(echo "$usuario" | cut -d'.' -f2-)
+        # Se não conseguiu ler o setor pelo IFS, tentar extrair manualmente
+        if [ -z "$setor" ]; then
+                # Tentar parsing manual (para compatibilidade)
+                linha_completa="$usuario"
+                usuario=$(echo "$linha_completa" | cut -d'|' -f1 | tr -d '[:space:]')
+                setor=$(echo "$linha_completa" | cut -d'|' -f2 | tr -d '[:space:]')
+        fi
         
         if [ -z "$setor" ] ; then
-                echo "ERRO: Login inválido (sem setor): $usuario"
+                echo "ERRO: Setor não informado para o usuário: $usuario"
                 # Manter na lista de pendentes se houver erro
-                echo "$usuario" >> "$temp_pendentes"
+                echo "$usuario | $setor" >> "$temp_pendentes"
                 continue
         fi
         

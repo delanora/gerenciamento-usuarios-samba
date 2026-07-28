@@ -16,28 +16,42 @@ $tipo_mensagem = '';
 // Processar formulário
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome = trim($_POST['nome'] ?? '');
+    $sobrenome = trim($_POST['sobrenome'] ?? '');
     $setor = trim($_POST['setor'] ?? '');
     
     // Validações
     if (empty($nome)) {
-        $mensagem = 'Nome do usuário é obrigatório!';
+        $mensagem = 'Nome é obrigatório!';
+        $tipo_mensagem = 'erro';
+    } elseif (empty($sobrenome)) {
+        $mensagem = 'Sobrenome é obrigatório!';
         $tipo_mensagem = 'erro';
     } elseif (empty($setor)) {
         $mensagem = 'Setor é obrigatório!';
         $tipo_mensagem = 'erro';
     } elseif (!preg_match('/^[a-z0-9_]+$/', $nome)) {
-        $mensagem = 'Nome do usuário deve conter apenas letras minúsculas!';
+        $mensagem = 'Nome deve conter apenas letras minúsculas, números e underscore!';
+        $tipo_mensagem = 'erro';
+    } elseif (!preg_match('/^[a-z0-9_]+$/', $sobrenome)) {
+        $mensagem = 'Sobrenome deve conter apenas letras minúsculas, números e underscore!';
         $tipo_mensagem = 'erro';
     } else {
-        // Gerar login no formato: usuario.setor
-        $login = strtolower($nome) . '.' . strtolower($setor);
+        // Gerar login no formato: nome.sobrenome
+        $login = strtolower($nome) . '.' . strtolower($sobrenome);
+        // Linha a ser salva no formato: login | setor
+        $linha_pendente = $login . ' | ' . strtolower($setor);
         
-        // Verificar se já existe nos pendentes
+        // Carregar lista de pendentes (formato: login | setor)
         $pendentes = [];
         if (file_exists($pendentes_file) && is_readable($pendentes_file)) {
-            $pendentes = @file($pendentes_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            if ($pendentes === false || !is_array($pendentes)) {
-                $pendentes = [];
+            $linhas = @file($pendentes_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            if ($linhas !== false && is_array($linhas)) {
+                foreach ($linhas as $linha) {
+                    $parts = explode(' | ', $linha);
+                    if (!empty($parts[0])) {
+                        $pendentes[] = trim($parts[0]);
+                    }
+                }
             }
         }
         
@@ -63,12 +77,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mensagem = "Usuário '$login' já foi criado!";
                 $tipo_mensagem = 'erro';
             } else {
-                // Adicionar à lista de pendentes
-                if (file_put_contents($pendentes_file, $login . PHP_EOL, FILE_APPEND | LOCK_EX) !== false) {
-                    $mensagem = "Usuário '$login' adicionado com sucesso à lista de pendentes!";
+                // Adicionar à lista de pendentes (login | setor)
+                if (file_put_contents($pendentes_file, $linha_pendente . PHP_EOL, FILE_APPEND | LOCK_EX) !== false) {
+                    $mensagem = "Usuário '$login' adicionado com sucesso à lista de pendentes! (Setor: " . ucfirst($setor) . ")";
                     $tipo_mensagem = 'sucesso';
                     // Limpar campos
                     $nome = '';
+                    $sobrenome = '';
                     $setor = '';
                 } else {
                     $mensagem = 'Erro ao salvar usuário. Verifique permissões do arquivo.';
@@ -113,22 +128,37 @@ if (file_exists($setores_file) && is_readable($setores_file)) {
             <?php endif; ?>
             
             <form method="POST" action="">
-                <div class="form-group">
-                    <label for="nome">Nome do Usuário:</label>
-                    <input type="text" 
-                           id="nome" 
-                           name="nome" 
-                           value="<?php echo htmlspecialchars($nome ?? ''); ?>" 
-                           required 
-                           pattern="[a-z0-9_]+"
-                           placeholder="Ex: joao">
-                    <div class="info">
-                        ⓘ Apenas letras minúsculas. O login será gerado automaticamente como: <strong>usuario.setor</strong>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nome">Nome:</label>
+                        <input type="text" 
+                               id="nome" 
+                               name="nome" 
+                               value="<?php echo htmlspecialchars($nome ?? ''); ?>" 
+                               required 
+                               pattern="[a-z0-9_]+"
+                               placeholder="Ex: joao"
+                               autofocus>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sobrenome">Sobrenome:</label>
+                        <input type="text" 
+                               id="sobrenome" 
+                               name="sobrenome" 
+                               value="<?php echo htmlspecialchars($sobrenome ?? ''); ?>" 
+                               required 
+                               pattern="[a-z0-9_]+"
+                               placeholder="Ex: silva">
                     </div>
                 </div>
                 
+                <div class="info" style="margin-top: 0; margin-bottom: 16px;">
+                    ⓘ Apenas letras minúsculas. O login será gerado automaticamente como: <strong>nome.sobrenome</strong>
+                </div>
+                
                 <div class="form-group">
-                    <label for="setor">Setor:</label>
+                    <label for="setor">Setor (grupo no Linux/Samba):</label>
                     <select id="setor" name="setor" required>
                         <option value="">Selecione um setor</option>
                         <?php foreach ($setores as $s): ?>
@@ -149,4 +179,3 @@ if (file_exists($setores_file) && is_readable($setores_file)) {
     </div>
 </body>
 </html>
-
