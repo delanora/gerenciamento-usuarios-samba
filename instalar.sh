@@ -488,8 +488,9 @@ aplicar_permissoes() {
     touch /var/log/cria_usuarios.log 2>/dev/null || true
     chmod 644 /var/log/cria_usuarios.log 2>/dev/null || true
 
-    # Backup dir
-    chmod 755 /var/backups/samba 2>/dev/null || true
+    # Backup / staging dir (PHP precisa escrever o arquivo de staging aqui)
+    chown "${WWW_USER}:${WWW_USER}" /var/backups/samba 2>/dev/null || true
+    chmod 775 /var/backups/samba 2>/dev/null || true
 
     log_ok "Permissões aplicadas com sucesso!"
 }
@@ -562,8 +563,23 @@ configurar_sudo() {
     echo "${SUDO_LINHA}" >> "$SUDO_FILE"
     chmod 440 "$SUDO_FILE"
 
-    log_ok "Sudo configurado com sucesso!"
+    log_ok "Arquivo sudoers criado: ${SUDO_FILE}"
     echo "  Regra: ${SUDO_LINHA}"
+
+    # Verificar se o sudo está funcionando
+    log_info "Verificando se o sudo está funcionando..."
+    local TESTE_OUTPUT
+    TESTE_OUTPUT=$(sudo -u "${WWW_USER}" sudo -n "${WWW_DIR}/usuarios/aplicar_compartilhamentos.sh" 2>&1 || true)
+    if echo "$TESTE_OUTPUT" | grep -qi "ERRO.*staging\|sucesso\|aplicada"; then
+        log_ok "Sudo verificado: www-data consegue executar o script sem senha!"
+    elif echo "$TESTE_OUTPUT" | grep -qi "password\|terminal\|askpass"; then
+        log_aviso "AVISO: O sudo parece ainda estar pedindo senha. Verifique o arquivo ${SUDO_FILE}."
+        log_aviso "Comando testado: sudo -u ${WWW_USER} sudo -n ${WWW_DIR}/usuarios/aplicar_compartilhamentos.sh"
+        log_aviso "Saída: ${TESTE_OUTPUT}"
+    else
+        # Pode ser que o staging não exista - o que significa que sudo está OK
+        log_ok "Sudo configurado (o script foi executado, mas pode não haver arquivo de staging pendente)."
+    fi
     echo ""
 }
 

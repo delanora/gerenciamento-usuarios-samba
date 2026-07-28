@@ -22,6 +22,8 @@ Antes de configurar as permissões, certifique-se de que:
 /var/www/html/
 ├── usuarios/           # Dados do sistema
 └── web_usuarios/       # Interface web
+
+/var/backups/samba/      # Backup smb.conf + arquivo de staging
 ```
 
 ### 🎯 Tabela de permissões
@@ -35,6 +37,7 @@ Antes de configurar as permissões, certifique-se de que:
 | `usuarios/cria_usuarios.sh` | `root` | `root` | `755` | Admin (manual) | Root (execução) |
 | `web_usuarios/*.php` | `www-data` | `www-data` | `644` | Admin (manual) | Apache (execução) |
 | `web_usuarios/css/*.css` | `www-data` | `www-data` | `644` | Admin (manual) | Apache (leitura) |
+| `/var/backups/samba/` | `www-data` | `www-data` | `775` | PHP (web) — arquivo staging | PHP (web) + Script (root) |
 
 ---
 
@@ -46,6 +49,7 @@ Antes de configurar as permissões, certifique-se de que:
 sudo mkdir -p /var/www/html/usuarios
 sudo mkdir -p /var/www/html/web_usuarios/css
 sudo mkdir -p /var/www/html/web_usuarios/app
+sudo mkdir -p /var/backups/samba
 ```
 
 ### 2. Copiar arquivos do repositório
@@ -104,6 +108,19 @@ sudo chmod 644 /var/www/html/web_usuarios/*.php
 # CSS
 sudo chown www-data:www-data /var/www/html/web_usuarios/css/*.css
 sudo chmod 644 /var/www/html/web_usuarios/css/*.css
+
+# ==========================================
+# Log
+# ==========================================
+
+# ==========================================
+# Diretório de staging / backup (compartilhamentos Samba)
+# ==========================================
+
+# O PHP (www-data) precisa escrever o arquivo de staging aqui
+sudo mkdir -p /var/backups/samba
+sudo chown www-data:www-data /var/backups/samba
+sudo chmod 775 /var/backups/samba
 
 # ==========================================
 # Log
@@ -175,6 +192,19 @@ sudo -u www-data cat /var/www/html/usuarios/setores.conf
 
 # Verificar se o script é executável
 ls -la /var/www/html/usuarios/cria_usuarios.sh
+
+# Verificar permissão do diretório de staging
+ls -la /var/backups/samba/
+sudo -u www-data touch /var/backups/samba/.test_write && echo "✅ www-data pode escrever" && rm /var/backups/samba/.test_write
+
+# Verificar sudo para o script de compartilhamentos
+SAIDA_SUDO=$(sudo -u www-data sudo -n /var/www/html/usuarios/aplicar_compartilhamentos.sh 2>&1)
+if echo "$SAIDA_SUDO" | grep -qi "password\|terminal"; then
+  echo "❌ Sudo com problemas — veja seção de configuração de sudo abaixo"
+  echo "   Saída: $SAIDA_SUDO"
+else
+  echo "✅ Sudo funcionando (staging pode estar ausente — comportamento normal)"
+fi
 ```
 
 ---
@@ -210,6 +240,23 @@ sudo /var/www/html/usuarios/cria_usuarios.sh  # sempre com sudo!
 ls -la /var/www/html/usuarios/usuarios_pendentes.txt
 ```
 
+### ❌ "Erro ao escrever arquivo de staging. Verifique permissões."
+
+**Causa:** O diretório `/var/backups/samba/` não existe ou o `www-data` não tem permissão de escrita.
+
+**Solução:**
+```bash
+sudo mkdir -p /var/backups/samba
+sudo chown www-data:www-data /var/backups/samba
+sudo chmod 775 /var/backups/samba
+```
+
+### ❌ "sudo: a terminal is required to read the password" no gerenciador de compartilhamentos
+
+**Causa:** O `www-data` não tem permissão de sudo sem senha para executar o script `aplicar_compartilhamentos.sh`.
+
+**Solução:** Configure o sudo (veja seção abaixo).
+
 ---
 
 ## 🔒 Boas práticas de segurança
@@ -227,23 +274,65 @@ ls -la /var/www/html/usuarios/usuarios_pendentes.txt
 
 O gerenciador de compartilhamentos Samba precisa editar `/etc/samba/smb.conf` e reiniciar o serviço, o que requer privilégios root.
 
-Adicione a seguinte linha ao arquivo `/etc/sudoers` (use `sudo visudo`):
+### 1. Criar o arquivo de regras no sudoers.d (recomendado)
+
+Em vez de editar o `/etc/sudoers` diretamente, crie um arquivo separado em `/etc/sudoers.d/`:
 
 ```bash
-sudo visudo
+sudo visudo -f /etc/sudoers.d/samba-gerenciamento
 ```
 
-Adicione:
+Adicione o conteúdo:
 ```
 # Permitir que o Apache (www-data) execute o script de compartilhamentos Samba sem senha
 www-data ALL=(root) NOPASSWD: /var/www/html/usuarios/aplicar_compartilhamentos.sh
 ```
 
-### Verificar configuração
+> ⚠️ **Importante:** O arquivo em `/etc/sudoers.d/` deve ter permissão `440` e pertencer a `root:root`. O `visudo -f` já cuida disso.
 
-Teste se o sudo está funcionando:
+### 2. Ou editar o /etc/sudoers diretamente
+
 ```bash
-sudo -u www-data sudo /var/www/html/usuarios/aplicar_compartilhamentos.sh
+sudo visudo
+```
+
+Adicione no final:
+```
+www-data ALL=(root) NOPASSWD: /var/www/html/usuarios/aplicar_compartilhamentos.sh
+```
+
+### 3. Verificar configuração
+
+Teste se o sudo está funcionando corretamente:
+
+```bash
+# Teste 1: Verificar se a regra existe
+sudo -l -U www-data | grep aplicar_compartilhamentos
+
+# Teste 2: Tentar executar o script como www-data (deve rodar sem pedir senha)
+sudo -u www-data sudo -n /var/www/html/usuarios/aplicar_compartilhamentos.sh
+```
+
+**Esperado:** O script deve executar sem pedir senha. Se o staging não existir, ele mostrará "ERRO: Arquivo de staging não encontrado" — isso significa que o sudo está OK.
+
+### 4. Diagnóstico de problemas
+
+Se o teste acima pedir senha ou mostrar "a terminal is required":
+
+```bash
+# Verificar se o arquivo sudoers existe e tem permissão correta
+ls -la /etc/sudoers.d/samba-gerenciamento
+# Deve mostrar: -r--r----- root root
+
+# Verificar sintaxe do arquivo
+sudo visudo -c -f /etc/sudoers.d/samba-gerenciamento
+
+# Verificar se o caminho do script está correto
+ls -la /var/www/html/usuarios/aplicar_compartilhamentos.sh
+
+# Forçar recriação do arquivo (se necessário)
+sudo rm -f /etc/sudoers.d/samba-gerenciamento
+sudo visudo -f /etc/sudoers.d/samba-gerenciamento
 ```
 
 ---
