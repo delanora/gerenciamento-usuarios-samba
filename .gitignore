@@ -1,0 +1,20 @@
+# ============================================
+# Sistema de Gerenciamento de Usuários Linux/Samba
+# ============================================
+
+# Dados sensíveis - credenciais do sistema
+/usuarios/usuarios_sistema.txt
+
+# Dados operacionais - senhas geradas
+/usuarios/usuarios_criados.txt
+
+# Logs
+*.log
+/var/log/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

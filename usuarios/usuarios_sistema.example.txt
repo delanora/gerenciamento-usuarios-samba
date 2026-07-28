@@ -1,0 +1,9 @@
+# Formato: usuario | senha_ou_hash_bcrypt
+# Exemplo com senha em texto simples:
+# admin | minha_senha_aqui
+#
+# Exemplo com hash bcrypt (gerado com password_hash() do PHP):
+# admin | $2y$10$ExemploDeHashBcryptCom60CaracteresNoTotal
+#
+# ATENÇÃO: Renomeie este arquivo para "usuarios_sistema.txt"
+# e configure as credenciais reais do sistema.
