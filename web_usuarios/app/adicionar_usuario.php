@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome = trim($_POST['nome'] ?? '');
     $sobrenome = trim($_POST['sobrenome'] ?? '');
     $setor = trim($_POST['setor'] ?? '');
-    
+
     // Validações
     if (empty($nome)) {
         $mensagem = 'Nome é obrigatório!';
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $login = strtolower($nome) . '.' . strtolower($sobrenome);
         // Linha a ser salva no formato: login | setor
         $linha_pendente = $login . ' | ' . strtolower($setor);
-        
+
         // Carregar lista de pendentes (formato: login | setor)
         $pendentes = [];
         if (file_exists($pendentes_file) && is_readable($pendentes_file)) {
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-        
+
         if (in_array($login, $pendentes)) {
             $mensagem = "Usuário '$login' já está na lista de pendentes!";
             $tipo_mensagem = 'erro';
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             }
-            
+
             if (in_array($login, $criados)) {
                 $mensagem = "Usuário '$login' já foi criado!";
                 $tipo_mensagem = 'erro';
@@ -114,65 +114,127 @@ if (file_exists($setores_file) && is_readable($setores_file)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adicionar Usuário</title>
     <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/list.css">
     <link rel="stylesheet" href="../css/form.css">
 </head>
 <body>
-    <div class="form-container container">
-        <div class="card">
-            <h1>➕ Adicionar Novo Usuário</h1>
-            
+    <div class="container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <a href="home.php" class="navbar-brand">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4095f5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <span>Gerenciamento de Usuários</span>
+            </a>
+            <div class="navbar-nav">
+                <span class="navbar-user">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <?php echo htmlspecialchars($_SESSION['usuario'] ?? ''); ?>
+                </span>
+                <a href="../logout.php" class="btn btn-sm btn-danger">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Sair
+                </a>
+            </div>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="home.php">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                Home
+            </a>
+            <span class="separator">▶</span>
+            <span class="current">Adicionar Usuário</span>
+        </div>
+
+        <!-- Header -->
+        <div class="list-header">
+            <h1>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="8.5" cy="7" r="4"/>
+                    <line x1="20" y1="8" x2="20" y2="14"/>
+                    <line x1="23" y1="11" x2="17" y2="11"/>
+                </svg>
+                Adicionar Novo Usuário
+            </h1>
+            <div class="list-header-actions">
+                <a href="home.php" class="btn btn-sm">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    Home
+                </a>
+            </div>
+        </div>
+
+        <div class="form-container card">
+
             <?php if ($mensagem): ?>
                 <div class="mensagem <?php echo $tipo_mensagem; ?>">
-                    <?php echo htmlspecialchars($mensagem); ?>
+                    <span class="mensagem-icon">
+                        <?php if ($tipo_mensagem === 'sucesso'): ?>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <?php else: ?>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        <?php endif; ?>
+                    </span>
+                    <span><?php echo htmlspecialchars($mensagem); ?></span>
                 </div>
             <?php endif; ?>
-            
+
             <form method="POST" action="">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="nome">Nome:</label>
-                        <input type="text" 
-                               id="nome" 
-                               name="nome" 
-                               value="<?php echo htmlspecialchars($nome ?? ''); ?>" 
-                               required 
+                        <label for="nome">Nome</label>
+                        <input type="text"
+                               id="nome"
+                               name="nome"
+                               value="<?php echo htmlspecialchars($nome ?? ''); ?>"
+                               required
                                pattern="[a-z0-9_]+"
                                placeholder="Ex: joao"
                                autofocus>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="sobrenome">Sobrenome:</label>
-                        <input type="text" 
-                               id="sobrenome" 
-                               name="sobrenome" 
-                               value="<?php echo htmlspecialchars($sobrenome ?? ''); ?>" 
-                               required 
+                        <label for="sobrenome">Sobrenome</label>
+                        <input type="text"
+                               id="sobrenome"
+                               name="sobrenome"
+                               value="<?php echo htmlspecialchars($sobrenome ?? ''); ?>"
+                               required
                                pattern="[a-z0-9_]+"
                                placeholder="Ex: silva">
                     </div>
                 </div>
-                
-                <div class="info" style="margin-top: 0; margin-bottom: 16px;">
-                    ⓘ Apenas letras minúsculas. O login será gerado automaticamente como: <strong>nome.sobrenome</strong>
+
+                <div class="info" style="margin-top:0;margin-bottom:18px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <span>Apenas letras minúsculas. O login será gerado automaticamente como: <strong>nome.sobrenome</strong></span>
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="setor">Setor (grupo no Linux/Samba):</label>
+                    <label for="setor">Setor (grupo no Linux/Samba)</label>
                     <select id="setor" name="setor" required>
                         <option value="">Selecione um setor</option>
                         <?php foreach ($setores as $s): ?>
-                            <option value="<?php echo htmlspecialchars($s); ?>" 
+                            <option value="<?php echo htmlspecialchars($s); ?>"
                                     <?php echo (isset($setor) && $setor === $s) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars(ucfirst($s)); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                
+
                 <div class="btn-group">
-                    <button type="submit">Adicionar Usuário</button>
-                    <a href="home.php" class="btn">Voltar</a>
+                    <button type="submit">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        Adicionar Usuário
+                    </button>
                 </div>
             </form>
         </div>

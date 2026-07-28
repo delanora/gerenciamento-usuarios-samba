@@ -1,0 +1,332 @@
+/* ============================================
+   Estilos - Gerenciamento de Compartilhamentos Samba
+   ============================================ */
+
+/* Card de formulário */
+.form-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--space-5);
+    box-shadow: var(--shadow-xs);
+}
+
+.form-card h2 {
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 2px solid var(--accent-blue);
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3) var(--space-4);
+}
+
+.form-grid .full-width {
+    grid-column: 1 / -1;
+}
+
+.form-grid label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.form-grid input[type="text"],
+.form-grid select {
+    width: 100%;
+    padding: 7px 10px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    color: var(--text-secondary);
+    transition: all var(--transition-normal);
+    font-family: inherit;
+}
+
+.form-grid input[type="text"]:hover,
+.form-grid select:hover {
+    border-color: var(--border-accent);
+}
+
+.form-grid input[type="text"]:focus,
+.form-grid select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    background: var(--bg-secondary);
+    box-shadow: 0 0 0 3px rgba(64, 149, 245, 0.15);
+}
+
+.form-grid input[type="text"]::placeholder {
+    color: var(--text-dim);
+}
+
+.field-hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    line-height: 1.4;
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+    grid-column: 1 / -1;
+}
+
+/* Card de lista de compartilhamentos */
+.shares-list-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xs);
+}
+
+.shares-list-card h2 {
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 2px solid var(--accent-blue);
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.shares-toolbar {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    flex-wrap: wrap;
+}
+
+/* Item de compartilhamento */
+.share-item {
+    background: var(--bg-inset);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4) var(--space-5);
+    margin-bottom: var(--space-2);
+    border-left: 3px solid var(--accent-blue);
+    transition: all var(--transition-normal);
+}
+
+.share-item:hover {
+    background: var(--bg-secondary);
+    border-color: var(--border-primary);
+    transform: translateX(2px);
+}
+
+.share-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-3);
+}
+
+.share-info h3 {
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.share-info .share-path {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    margin-bottom: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.share-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.share-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* Banner info */
+.info-banner {
+    background: var(--accent-blue-bg);
+    border: 1px solid rgba(64, 149, 245, 0.2);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-4);
+    font-size: 13px;
+    color: #79c0ff;
+    line-height: 1.7;
+}
+
+.info-banner code {
+    background: var(--bg-inset);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    border: 1px solid var(--border-secondary);
+}
+
+/* ------------------------------
+   Setores / Permissões Table
+   ------------------------------ */
+.setores-permissions {
+    background: var(--bg-inset);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.setores-header {
+    display: grid;
+    grid-template-columns: 1fr 80px 80px;
+    gap: 0;
+    padding: 8px 14px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-primary);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.setor-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 80px;
+    gap: 0;
+    padding: 7px 14px;
+    border-bottom: 1px solid var(--border-secondary);
+    align-items: center;
+    transition: background var(--transition-fast);
+}
+
+.setor-row:last-child {
+    border-bottom: none;
+}
+
+.setor-row:hover {
+    background: var(--bg-secondary);
+}
+
+.setores-col-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.setores-col-access {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.setores-empty {
+    padding: 20px 14px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* Custom Checkbox */
+.checkbox-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.checkbox-wrap input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    background: var(--bg-inset);
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkbox-wrap input:checked ~ .checkmark {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+}
+
+.checkbox-wrap input:checked ~ .checkmark::after {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 9px;
+    border: solid var(--text-inverse);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-top: -1px;
+}
+
+.checkbox-wrap input:focus ~ .checkmark {
+    box-shadow: 0 0 0 3px rgba(64, 149, 245, 0.2);
+}
+
+.checkbox-wrap input:checked ~ .checkmark.sector-write {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+}
+
+/* ------------------------------
+   Responsivo
+   ------------------------------ */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .share-header {
+        flex-direction: column;
+    }
+
+    .share-actions {
+        align-self: flex-end;
+    }
+}

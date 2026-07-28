@@ -8,15 +8,16 @@
 }
 
 .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 }
 
 label {
     display: block;
     margin-bottom: 6px;
-    color: #f0f6fc;
+    color: var(--text-primary);
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px;
+    letter-spacing: 0.01em;
 }
 
 input[type="text"],
@@ -24,35 +25,57 @@ input[type="password"],
 select {
     width: 100%;
     padding: 8px 12px;
-    background: #0d1117;
-    border: 1px solid #30363d;
-    border-radius: 6px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
     font-size: 14px;
-    color: #c9d1d9;
-    transition: border-color 0.2s, background-color 0.2s;
+    color: var(--text-secondary);
+    transition: all var(--transition-normal);
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+input[type="text"]:hover,
+input[type="password"]:hover,
+select:hover {
+    border-color: var(--border-accent);
 }
 
 input[type="text"]:focus,
 input[type="password"]:focus,
 select:focus {
     outline: none;
-    border-color: #58a6ff;
-    background: #161b22;
+    border-color: var(--accent-blue);
+    background: var(--bg-secondary);
+    box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.15);
 }
 
 input[type="text"]::placeholder,
 input[type="password"]::placeholder {
-    color: #6e7681;
+    color: var(--text-dim);
+}
+
+select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 32px;
 }
 
 .info {
-    background: rgba(56, 139, 253, 0.1);
+    background: rgba(56, 139, 253, 0.08);
     border: 1px solid rgba(56, 139, 253, 0.2);
     padding: 12px;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     margin-top: 8px;
     font-size: 12px;
     color: #79c0ff;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
 }
 
 .form-row {
@@ -70,16 +93,24 @@ input[type="password"]::placeholder {
 .btn-group button,
 .btn-group .btn {
     flex: 1;
+    justify-content: center;
 }
 
 .btn-group .btn.logout {
     flex: 0.5;
-    background: rgba(218, 54, 51, 0.1);
+    background: rgba(218, 54, 51, 0.08);
     border-color: rgba(218, 54, 51, 0.3);
-    color: #f85149;
+    color: var(--accent-red);
 }
 
 .btn-group .btn.logout:hover {
-    background: rgba(218, 54, 51, 0.2);
+    background: rgba(218, 54, 51, 0.15);
+    border-color: var(--accent-red);
 }
 
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}

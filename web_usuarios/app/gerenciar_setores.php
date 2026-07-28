@@ -14,16 +14,16 @@ $tipo_mensagem = '';
 // Processar exclusão de setor
 if (isset($_GET['remover']) && !empty($_GET['remover'])) {
     $remover = trim($_GET['remover']);
-    
+
     // Carregar setores atuais
     $setores = carregar_setores($setores_file);
-    
+
     if (in_array($remover, $setores)) {
         // Remover setor da lista
         $setores = array_values(array_filter($setores, function($s) use ($remover) {
             return $s !== $remover;
         }));
-        
+
         if (salvar_setores($setores_file, $setores)) {
             $mensagem = "Setor '$remover' removido com sucesso!";
             $tipo_mensagem = 'sucesso';
@@ -40,7 +40,7 @@ if (isset($_GET['remover']) && !empty($_GET['remover'])) {
 // Processar formulário de adição
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $novo_setor = trim($_POST['setor'] ?? '');
-    
+
     // Validações
     if (empty($novo_setor)) {
         $mensagem = 'Nome do setor é obrigatório!';
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Carregar setores atuais
         $setores = carregar_setores($setores_file);
-        
+
         if (in_array($novo_setor, $setores)) {
             $mensagem = "O setor '$novo_setor' já existe!";
             $tipo_mensagem = 'erro';
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Adicionar novo setor
             $setores[] = $novo_setor;
             sort($setores);
-            
+
             if (salvar_setores($setores_file, $setores)) {
                 $mensagem = "Setor '$novo_setor' adicionado com sucesso!";
                 $tipo_mensagem = 'sucesso';
@@ -113,270 +113,148 @@ function salvar_setores($arquivo, $setores) {
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/form.css">
     <link rel="stylesheet" href="../css/list.css">
-    <style>
-        /* Estilos específicos para gerenciamento de setores */
-        .grid-setores {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            align-items: start;
-        }
-
-        .setor-form-card {
-            background: #161b22;
-            border: 1px solid #30363d;
-            padding: 24px;
-            border-radius: 6px;
-        }
-
-        .setor-form-card h2 {
-            color: #f0f6fc;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #30363d;
-            border-bottom-color: #1f6feb;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .setor-list-card {
-            background: #161b22;
-            border: 1px solid #30363d;
-            padding: 24px;
-            border-radius: 6px;
-        }
-
-        .setor-list-card h2 {
-            color: #f0f6fc;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #30363d;
-            border-bottom-color: #d29922;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .count-badge {
-            display: inline-block;
-            background: #21262d;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-left: 8px;
-        }
-
-        .setor-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            margin-bottom: 8px;
-            background: #0d1117;
-            border: 1px solid #21262d;
-            border-radius: 6px;
-            border-left: 3px solid #d29922;
-            transition: border-color 0.2s, background-color 0.2s;
-        }
-
-        .setor-item:hover {
-            background: #161b22;
-            border-color: #30363d;
-        }
-
-        .setor-item .nome {
-            font-weight: 600;
-            color: #f0f6fc;
-            font-size: 14px;
-        }
-
-        .setor-item .acoes {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .btn-remover {
-            padding: 4px 12px;
-            background: rgba(218, 54, 51, 0.1);
-            border: 1px solid rgba(218, 54, 51, 0.3);
-            color: #f85149;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s, border-color 0.2s;
-            text-decoration: none;
-        }
-
-        .btn-remover:hover {
-            background: rgba(218, 54, 51, 0.2);
-            border-color: #f85149;
-            text-decoration: none;
-        }
-
-        .vazio-setores {
-            text-align: center;
-            padding: 48px 24px;
-            color: #6e7681;
-            font-style: italic;
-            font-size: 14px;
-        }
-
-        @media (max-width: 768px) {
-            .grid-setores {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Modal de confirmação */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-box {
-            background: #161b22;
-            border: 1px solid #30363d;
-            padding: 24px;
-            border-radius: 6px;
-            max-width: 400px;
-            width: 90%;
-        }
-
-        .modal-box h3 {
-            color: #f0f6fc;
-            margin-bottom: 12px;
-            font-size: 16px;
-        }
-
-        .modal-box p {
-            color: #8b949e;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-
-        .btn-cancelar {
-            padding: 8px 16px;
-            background: #21262d;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .btn-cancelar:hover {
-            background: #30363d;
-        }
-
-        .btn-confirmar {
-            padding: 8px 16px;
-            background: rgba(218, 54, 51, 0.2);
-            border: 1px solid #f85149;
-            color: #f85149;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .btn-confirmar:hover {
-            background: rgba(218, 54, 51, 0.3);
-        }
-    </style>
+    <link rel="stylesheet" href="../css/setores.css">
 </head>
 <body>
     <div class="container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <a href="home.php" class="navbar-brand">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4095f5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <span>Gerenciamento de Usuários</span>
+            </a>
+            <div class="navbar-nav">
+                <span class="navbar-user">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <?php echo htmlspecialchars($_SESSION['usuario'] ?? ''); ?>
+                </span>
+                <a href="../logout.php" class="btn btn-sm btn-danger">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Sair
+                </a>
+            </div>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="home.php">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                Home
+            </a>
+            <span class="separator">▶</span>
+            <span class="current">Gerenciar Setores</span>
+        </div>
+
+        <!-- Header -->
         <div class="list-header">
-            <h1>📂 Gerenciar Setores</h1>
+            <h1>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d29922" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    <line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
+                </svg>
+                Gerenciar Setores
+            </h1>
             <div class="list-header-actions">
-                <span><?php echo htmlspecialchars($_SESSION['usuario'] ?? ''); ?></span>
-                <a href="home.php" class="btn">← Voltar</a>
-                <a href="../logout.php" class="btn logout">Sair</a>
+                <a href="home.php" class="btn btn-sm">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    Home
+                </a>
             </div>
         </div>
 
         <?php if ($mensagem): ?>
             <div class="mensagem <?php echo $tipo_mensagem; ?>" style="margin-bottom: 20px;">
-                <?php echo htmlspecialchars($mensagem); ?>
+                <span class="mensagem-icon">
+                    <?php if ($tipo_mensagem === 'sucesso'): ?>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    <?php else: ?>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    <?php endif; ?>
+                </span>
+                <span><?php echo htmlspecialchars($mensagem); ?></span>
             </div>
         <?php endif; ?>
 
         <div class="grid-setores">
             <!-- Card de Adicionar Setor -->
-            <div class="setor-form-card">
-                <h2>➕ Adicionar Setor</h2>
-                <p style="color: #8b949e; font-size: 13px; margin-bottom: 16px;">
+            <div class="setor-form-card fade-in fade-in-d1">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        <line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
+                    </svg>
+                    Adicionar Setor
+                </h2>
+                <p>
                     Os setores são usados como grupos no Linux/Samba e como categorias para organizar os usuários.
                 </p>
                 <form method="POST" action="">
                     <div class="form-group">
-                        <label for="setor">Nome do Setor:</label>
-                        <input type="text" 
-                               id="setor" 
-                               name="setor" 
-                               required 
+                        <label for="setor">Nome do Setor</label>
+                        <input type="text"
+                               id="setor"
+                               name="setor"
+                               required
                                pattern="[a-z0-9_]+"
                                minlength="2"
                                placeholder="Ex: vendas, rh, ti, financeiro"
                                autofocus>
-                        <div class="info" style="margin-top: 8px;">
-                            ⓘ Apenas letras minúsculas, números e underscore. Mínimo de 2 caracteres.
+                        <div class="info" style="margin-top:8px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            <span>Apenas letras minúsculas, números e underscore. Mínimo de 2 caracteres.</span>
                         </div>
                     </div>
-                    <button type="submit" style="width: 100%; margin-top: 8px;">Adicionar Setor</button>
+                    <button type="submit" style="width:100%;margin-top:8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+                        Adicionar Setor
+                    </button>
                 </form>
             </div>
 
             <!-- Card de Listar Setores -->
-            <div class="setor-list-card">
+            <div class="setor-list-card fade-in fade-in-d2">
                 <h2>
-                    📋 Setores
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d29922" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+                        <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+                        <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg>
+                    Setores
                     <span class="count-badge"><?php echo count($setores); ?></span>
                 </h2>
 
                 <?php if (empty($setores)): ?>
-                    <div class="vazio-setores">
+                    <div class="empty-setores">
+                        <div class="empty-state-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        </div>
                         Nenhum setor cadastrado ainda.<br>
                         Adicione setores ao lado para começar.
                     </div>
                 <?php else: ?>
                     <div class="info-box">
-                        ⓘ Clique em "Remover" para excluir um setor. Usuários já criados com este setor não serão afetados.
+                        <span class="info-box-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        </span>
+                        <span>Usuários já criados com este setor não serão afetados ao removê-lo.</span>
                     </div>
-                    <div class="lista" style="max-height: 400px;">
+                    <div class="lista-setores">
                         <?php foreach ($setores as $setor): ?>
                             <div class="setor-item">
-                                <span class="nome"><?php echo htmlspecialchars(ucfirst($setor)); ?></span>
+                                <span class="nome">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d29922" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                    <?php echo htmlspecialchars(ucfirst($setor)); ?>
+                                </span>
                                 <div class="acoes">
-                                    <a href="#" 
-                                       class="btn-remover" 
-                                       data-setor="<?php echo htmlspecialchars($setor); ?>"
+                                    <a href="#"
+                                       class="btn-remove-setor"
                                        onclick="confirmarRemocao(event, '<?php echo htmlspecialchars($setor, ENT_QUOTES); ?>')">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                                         Remover
                                     </a>
                                 </div>
@@ -391,11 +269,17 @@ function salvar_setores($arquivo, $setores) {
     <!-- Modal de Confirmação -->
     <div class="modal-overlay" id="modalConfirmacao">
         <div class="modal-box">
-            <h3>⚠️ Confirmar Remoção</h3>
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d29922" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Confirmar Remoção
+            </h3>
             <p id="modalMensagem">Tem certeza que deseja remover este setor?</p>
             <div class="modal-actions">
-                <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
-                <a href="#" class="btn-confirmar" id="btnConfirmarRemocao">Remover</a>
+                <button class="btn" onclick="fecharModal()">Cancelar</button>
+                <a href="#" class="btn-confirm-remove" id="btnConfirmarRemocao">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    Remover
+                </a>
             </div>
         </div>
     </div>
@@ -403,32 +287,22 @@ function salvar_setores($arquivo, $setores) {
     <script>
         function confirmarRemocao(event, setor) {
             event.preventDefault();
-            var modal = document.getElementById('modalConfirmacao');
-            var mensagem = document.getElementById('modalMensagem');
-            var btnConfirmar = document.getElementById('btnConfirmarRemocao');
-            
-            mensagem.textContent = "Tem certeza que deseja remover o setor '" + setor + "'?";
-            btnConfirmar.href = '?remover=' + encodeURIComponent(setor);
-            
-            modal.classList.add('active');
+            document.getElementById('modalMensagem').textContent =
+                "Tem certeza que deseja remover o setor '" + setor + "'?";
+            document.getElementById('btnConfirmarRemocao').href = '?remover=' + encodeURIComponent(setor);
+            document.getElementById('modalConfirmacao').classList.add('active');
         }
 
         function fecharModal() {
             document.getElementById('modalConfirmacao').classList.remove('active');
         }
 
-        // Fechar modal ao clicar fora
         document.getElementById('modalConfirmacao').addEventListener('click', function(event) {
-            if (event.target === this) {
-                fecharModal();
-            }
+            if (event.target === this) fecharModal();
         });
 
-        // Fechar modal com tecla ESC
         document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                fecharModal();
-            }
+            if (event.key === 'Escape') fecharModal();
         });
     </script>
 </body>

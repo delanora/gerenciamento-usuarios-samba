@@ -6,32 +6,88 @@ body.login-page {
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: 100vh;
+    background: var(--bg-primary);
+    background-image:
+        radial-gradient(ellipse at 30% 40%, rgba(56, 139, 253, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 60%, rgba(188, 140, 255, 0.03) 0%, transparent 50%);
 }
 
 .login-container {
     max-width: 400px;
     width: 100%;
+    padding: 20px;
+    animation: fadeInUp 0.5s ease;
 }
 
 .login-card {
-    background: #161b22;
-    border: 1px solid #30363d;
-    padding: 32px;
-    border-radius: 6px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    padding: 36px 32px 32px;
+    border-radius: var(--radius-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+    opacity: 0.8;
+}
+
+.login-lock-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.login-lock-icon svg {
+    filter: drop-shadow(0 0 12px rgba(88, 166, 255, 0.25));
 }
 
 .login-card h1 {
-    color: #f0f6fc;
+    color: var(--text-primary);
     margin-bottom: 24px;
     text-align: center;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 600;
 }
 
-.footer {
+.login-card .form-group {
+    margin-bottom: 18px;
+}
+
+.login-card button[type="submit"] {
+    width: 100%;
+    margin-top: 4px;
+    padding: 10px 16px;
+    font-size: 15px;
+    justify-content: center;
+}
+
+.login-footer {
     text-align: center;
     margin-top: 24px;
     font-size: 12px;
-    color: #8b949e;
+    color: var(--text-dim);
+    line-height: 1.6;
 }
 
+.login-footer strong {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+@media (max-height: 500px) {
+    .login-container {
+        padding: 12px;
+    }
+    .login-card {
+        padding: 24px 20px;
+    }
+}
