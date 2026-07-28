@@ -84,11 +84,14 @@ sudo chown root:www-data /var/www/html/usuarios/usuarios_sistema.txt
 sudo chmod 640 /var/www/html/usuarios/usuarios_sistema.txt
 
 # ==========================================
-# Script bash (executável como root)
+# Scripts bash (executáveis como root)
 # ==========================================
 
 sudo chown root:root /var/www/html/usuarios/cria_usuarios.sh
 sudo chmod 755 /var/www/html/usuarios/cria_usuarios.sh
+
+sudo chown root:root /var/www/html/usuarios/aplicar_compartilhamentos.sh
+sudo chmod 755 /var/www/html/usuarios/aplicar_compartilhamentos.sh
 
 # ==========================================
 # Arquivos da interface web
@@ -220,14 +223,48 @@ ls -la /var/www/html/usuarios/usuarios_pendentes.txt
 
 ---
 
+## 🤝 Configuração de Sudo para o Gerenciador de Compartilhamentos
+
+O gerenciador de compartilhamentos Samba precisa editar `/etc/samba/smb.conf` e reiniciar o serviço, o que requer privilégios root.
+
+Adicione a seguinte linha ao arquivo `/etc/sudoers` (use `sudo visudo`):
+
+```bash
+sudo visudo
+```
+
+Adicione:
+```
+# Permitir que o Apache (www-data) execute o script de compartilhamentos Samba sem senha
+www-data ALL=(root) NOPASSWD: /var/www/html/usuarios/aplicar_compartilhamentos.sh
+```
+
+### Verificar configuração
+
+Teste se o sudo está funcionando:
+```bash
+sudo -u www-data sudo /var/www/html/usuarios/aplicar_compartilhamentos.sh
+```
+
+---
+
 ## 📝 Notas sobre o Samba
 
-O script `cria_usuarios.sh` utiliza os seguintes comandos do Samba:
+### Scripts do sistema
+
+| Script | Função | Permissão |
+|--------|--------|-----------|
+| `cria_usuarios.sh` | Cria usuários Linux/Samba | Executado como root (cron ou manual) |
+| `aplicar_compartilhamentos.sh` | Aplica config de compartilhamentos Samba | Executado via sudo pelo PHP |
+
+### Comandos Samba utilizados
 
 | Comando | Função |
 |---------|--------|
 | `smbpasswd -s -a usuario` | Adiciona/atualiza usuário no Samba |
 | `smbpasswd -e usuario` | Habilita usuário no Samba |
+| `systemctl restart smbd` | Reinicia o serviço Samba |
+| `testparm` | Valida a configuração do smb.conf |
 
 Certifique-se de que o Samba está instalado e configurado:
 

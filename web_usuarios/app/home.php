@@ -47,6 +47,14 @@ $web_dir = __DIR__;
                     <p>Adicionar e remover grupos/setores</p>
                 </a>
             </div>
+            
+            <div class="menu-card shares">
+                <a href="gerenciar_compartilhamentos.php">
+                    <div class="card-icon">📁</div>
+                    <h2>Compartilhamentos Samba</h2>
+                    <p>Gerenciar compartilhamentos e pastas</p>
+                </a>
+            </div>
         </div>
     </div>
 </body>
