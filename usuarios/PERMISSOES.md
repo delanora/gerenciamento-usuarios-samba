@@ -1,61 +1,244 @@
-# Instruções de Permissões e Configuração
+# 🔒 Guia de Permissões, Instalação e Operação
 
-## Permissões Recomendadas
+Este documento detalha todas as permissões necessárias para o funcionamento correto e seguro do sistema de gerenciamento de usuários.
 
-### Arquivos de Dados
-```bash
-# Arquivos de dados - leitura/escrita para o usuário do servidor web
-chown www-data:www-data /var/www/html/usuarios/usuarios_pendentes.txt
-chown www-data:www-data /var/www/html/usuarios/usuarios_criados.txt
-chmod 664 /var/www/html/usuarios/usuarios_pendentes.txt
-chmod 664 /var/www/html/usuarios/usuarios_criados.txt
+---
 
-# Arquivo de setores - apenas leitura
-chown root:www-data /var/www/html/usuarios/setores.conf
-chmod 644 /var/www/html/usuarios/setores.conf
+## 📋 Pré-requisitos de ambiente
+
+Antes de configurar as permissões, certifique-se de que:
+
+1. O Apache (`www-data`) é o usuário do servidor web
+2. O PHP tem permissão para ler/escrever nos arquivos de dados
+3. O script bash será executado como **root** (via sudo ou cron)
+
+---
+
+## 🔐 Permissões dos Arquivos
+
+### 📁 Localização dos arquivos
+
+```
+/var/www/html/
+├── usuarios/           # Dados do sistema
+└── web_usuarios/       # Interface web
 ```
 
-### Script Bash
+### 🎯 Tabela de permissões
+
+| Arquivo | Proprietário | Grupo | Permissão | Quem escreve | Quem lê |
+|---------|-------------|-------|-----------|-------------|---------|
+| `usuarios/usuarios_pendentes.txt` | `www-data` | `www-data` | `664` | PHP (web) + Script (root) | PHP (web) + Script (root) |
+| `usuarios/usuarios_criados.txt` | `www-data` | `www-data` | `664` | Script (root) | PHP (web) |
+| `usuarios/setores.conf` | `root` | `www-data` | `644` | Admin (manual) | PHP (web) |
+| `usuarios/usuarios_sistema.txt` | `root` | `www-data` | `640` | Admin (manual) | PHP (web) |
+| `usuarios/cria_usuarios.sh` | `root` | `root` | `755` | Admin (manual) | Root (execução) |
+| `web_usuarios/*.php` | `www-data` | `www-data` | `644` | Admin (manual) | Apache (execução) |
+| `web_usuarios/css/*.css` | `www-data` | `www-data` | `644` | Admin (manual) | Apache (leitura) |
+
+---
+
+## 🛠️ Comandos de configuração
+
+### 1. Criar diretórios (se não existirem)
+
 ```bash
-# Script deve ser executável e rodar como root
-chown root:root /var/www/html/usuarios/cria_usuarios.sh
-chmod 755 /var/www/html/usuarios/cria_usuarios.sh
+sudo mkdir -p /var/www/html/usuarios
+sudo mkdir -p /var/www/html/web_usuarios/css
+sudo mkdir -p /var/www/html/web_usuarios/app
 ```
 
-### Arquivos PHP
+### 2. Copiar arquivos do repositório
+
 ```bash
-# Arquivos PHP - permissões padrão
-chown www-data:www-data /var/www/html/web_usuarios/*.php
-chmod 644 /var/www/html/web_usuarios/*.php
+# A partir da raiz do projeto
+sudo cp -r usuarios/* /var/www/html/usuarios/
+sudo cp -r web_usuarios/* /var/www/html/web_usuarios/
 ```
 
-## Configuração do Cron (Opcional)
+### 3. Aplicar permissões
 
-Para executar o script automaticamente a cada hora:
+```bash
+# ==========================================
+# Arquivos de dados
+# ==========================================
+
+# Pendentes (PHP escreve, Script lê e escreve)
+sudo chown www-data:www-data /var/www/html/usuarios/usuarios_pendentes.txt
+sudo chmod 664 /var/www/html/usuarios/usuarios_pendentes.txt
+
+# Criados (Script escreve, PHP lê)
+sudo chown www-data:www-data /var/www/html/usuarios/usuarios_criados.txt
+sudo chmod 664 /var/www/html/usuarios/usuarios_criados.txt
+
+# ==========================================
+# Arquivos de configuração (somente leitura para web)
+# ==========================================
+
+# Setores
+sudo chown root:www-data /var/www/html/usuarios/setores.conf
+sudo chmod 644 /var/www/html/usuarios/setores.conf
+
+# Credenciais do admin (mais restrito por segurança)
+sudo chown root:www-data /var/www/html/usuarios/usuarios_sistema.txt
+sudo chmod 640 /var/www/html/usuarios/usuarios_sistema.txt
+
+# ==========================================
+# Script bash (executável como root)
+# ==========================================
+
+sudo chown root:root /var/www/html/usuarios/cria_usuarios.sh
+sudo chmod 755 /var/www/html/usuarios/cria_usuarios.sh
+
+# ==========================================
+# Arquivos da interface web
+# ==========================================
+
+# PHP
+sudo chown www-data:www-data /var/www/html/web_usuarios/*.php
+sudo chmod 644 /var/www/html/web_usuarios/*.php
+
+# CSS
+sudo chown www-data:www-data /var/www/html/web_usuarios/css/*.css
+sudo chmod 644 /var/www/html/web_usuarios/css/*.css
+
+# ==========================================
+# Log
+# ==========================================
+
+sudo touch /var/log/cria_usuarios.log
+sudo chmod 644 /var/log/cria_usuarios.log
+```
+
+---
+
+## ⚡ Script Bash (`cria_usuarios.sh`)
+
+### Execução manual
+
+```bash
+sudo /var/www/html/usuarios/cria_usuarios.sh
+```
+
+### Agendamento automático (cron)
+
+Para executar automaticamente a cada hora:
 
 ```bash
 sudo crontab -e
 ```
 
-Adicionar linha:
-```
+Adicione a linha:
+```cron
 0 * * * * /var/www/html/usuarios/cria_usuarios.sh >> /var/log/cria_usuarios.log 2>&1
 ```
 
-## Execução Manual
+**Explicação do cron:**
+| Campo | Valor | Significado |
+|-------|-------|-------------|
+| Minuto | `0` | No minuto 0 |
+| Hora | `*` | Toda hora |
+| Dia do mês | `*` | Todo dia |
+| Mês | `*` | Todo mês |
+| Dia da semana | `*` | Todos os dias |
 
-Para executar o script manualmente:
+### Logs
+
 ```bash
-sudo /var/www/html/usuarios/cria_usuarios.sh
+# Ver logs em tempo real
+sudo tail -f /var/log/cria_usuarios.log
+
+# Ver últimas 50 linhas
+sudo tail -50 /var/log/cria_usuarios.log
+
+# Buscar erros no log
+grep -i "erro\|error\|fail" /var/log/cria_usuarios.log
 ```
 
-## Logs
+---
 
-Os logs são salvos em: `/var/log/cria_usuarios.log`
+## 🧪 Verificação de permissões
 
-Certifique-se de que o diretório existe e tem permissões adequadas:
+Após configurar, verifique se está tudo correto:
+
 ```bash
-sudo touch /var/log/cria_usuarios.log
-sudo chmod 644 /var/log/cria_usuarios.log
+# Verificar proprietários e permissões
+ls -la /var/www/html/usuarios/
+find /var/www/html/web_usuarios -name "*.php" -exec ls -la {} +
+
+# Verificar se o www-data consegue ler os arquivos
+sudo -u www-data cat /var/www/html/usuarios/usuarios_pendentes.txt
+sudo -u www-data cat /var/www/html/usuarios/setores.conf
+
+# Verificar se o script é executável
+ls -la /var/www/html/usuarios/cria_usuarios.sh
 ```
 
+---
+
+## ⚠️ Problemas comuns de permissão
+
+### ❌ "Erro ao salvar usuário" no painel web
+
+**Causa:** `www-data` não tem permissão de escrita em `usuarios_pendentes.txt`
+
+**Solução:**
+```bash
+sudo chown www-data:www-data /var/www/html/usuarios/usuarios_pendentes.txt
+sudo chmod 664 /var/www/html/usuarios/usuarios_pendentes.txt
+```
+
+### ❌ Script não funciona: "Permission denied"
+
+**Causa:** Script não é executável ou não está rodando como root
+
+**Solução:**
+```bash
+sudo chmod 755 /var/www/html/usuarios/cria_usuarios.sh
+sudo /var/www/html/usuarios/cria_usuarios.sh  # sempre com sudo!
+```
+
+### ❌ "Arquivo de pendentes não encontrado" no script
+
+**Causa:** O script espera que os arquivos estejam em `/var/www/html/usuarios/`
+
+**Solução:** Certifique-se de que copiou os arquivos para o local correto:
+```bash
+ls -la /var/www/html/usuarios/usuarios_pendentes.txt
+```
+
+---
+
+## 🔒 Boas práticas de segurança
+
+1. **Sempre use HTTPS** em produção
+2. **Mantenha `usuarios_sistema.txt` com permissão 640** para evitar leitura por outros usuários
+3. **Use hash bcrypt** para a senha do admin (veja README.md principal)
+4. **Nunca deixe `usuarios_criados.txt`** com permissão de leitura global (contém senhas)
+5. **Monitore os logs** regularmente
+6. **Revise o agendamento cron** para não sobrecarregar o servidor
+
+---
+
+## 📝 Notas sobre o Samba
+
+O script `cria_usuarios.sh` utiliza os seguintes comandos do Samba:
+
+| Comando | Função |
+|---------|--------|
+| `smbpasswd -s -a usuario` | Adiciona/atualiza usuário no Samba |
+| `smbpasswd -e usuario` | Habilita usuário no Samba |
+
+Certifique-se de que o Samba está instalado e configurado:
+
+```bash
+# Verificar instalação
+which smbpasswd
+
+# Verificar status do serviço
+sudo systemctl status smbd
+```
+
+---
+
+*Documentação atualizada em Julho de 2026.*
